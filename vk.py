@@ -12,9 +12,8 @@ def write_json(data_to_write):
 
 
 class User:
-    def __init__(self, login, password):
-        self.vk_session = vk_api.VkApi(login, password)
-        self.vk_session.auth()
+    def __init__(self, user_token):
+        self.vk_session = vk_api.VkApi(app_id=7985253, token=user_token)
         self.vk = self.vk_session.get_api()
 
     def users_id(self, uid=None):
@@ -88,8 +87,8 @@ class User:
 
 
 class Communication:
-    def __init__(self, token):
-        self.token = token
+    def __init__(self, user_token):
+        self.token = user_token
         self.vk = vk_api.VkApi(token=self.token)
         self.vk._auth_token()
         self.longpoll = VkLongPoll(self.vk)

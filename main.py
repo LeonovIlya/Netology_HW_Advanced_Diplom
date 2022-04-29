@@ -3,20 +3,18 @@ from db import db
 import vk
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 
-my_login = "user_login"
-my_password = "user_password"
+user_token= "user_token"
 token_group = "group_token"
 
 
 class VkGroup:
-    def __init__(self, login, password, token):
-        self.login = login
-        self.password = password
-        self.token_group = token
+    def __init__(self, user_token, token_group):
+        self.user_token = user_token
+        self.token_group = token_group
         self.receive_message = vk.Communication(self.token_group).listen()
         self.mess_id = self.receive_message[0]
         self.sending_message = vk.Communication(self.token_group)
-        self.admin_group = vk.User(self.login, self.password)
+        self.admin_group = vk.User(self.user_token)
 
     def mess_text(self):
         receive_message = vk.Communication(self.token_group).listen()
@@ -60,12 +58,18 @@ class VkGroup:
             self.sending_message.send_message(self.mess_id, f"{first_name} {last_name}")
             self.sending_message.send_message_media(self.mess_id, f"photo{uid[0]}_{photo_url[0][0]}")
             time.sleep(1)
+            self.sending_message.send_message(self.mess_id, 'Введите "дальше" для продолжения или "хватит" для '
+                                                            'остановки')
+            if self.mess_text() == "дальше":
+                continue
+            elif self.mess_text() == "хватит":
+                break
         self.sending_message.send_message(self.mess_id, f"поиск окончен")
 
 
 def main():
     con = db.create_database("db_vk")
-    vk_bot = VkGroup(my_login, my_password, token_group)
+    vk_bot = VkGroup(user_token, token_group)
     keyboard = VkKeyboard(one_time=False)
     keyboard.add_button('поиск кандидатов', color=VkKeyboardColor.SECONDARY)
     while True:
